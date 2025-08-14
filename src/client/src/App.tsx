@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import { Cue, getCues, createCue, updateCue, deleteCue } from './storage';
+import type { Cue } from './storage';
+import { getCues, createCue, updateCue, deleteCue } from './storage';
 
 function App() {
   const [cues, setCues] = useState<Cue[]>([]);
