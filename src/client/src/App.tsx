@@ -1,34 +1,57 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import { Cue, getCues, createCue, updateCue, deleteCue } from './storage';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [cues, setCues] = useState<Cue[]>([]);
+  const [newText, setNewText] = useState('');
+
+  useEffect(() => {
+    setCues(getCues());
+  }, []);
+
+  const addCue = () => {
+    if (!newText.trim()) return;
+    createCue({ id: crypto.randomUUID(), text: newText });
+    setCues(getCues());
+    setNewText('');
+  };
+
+  const editCue = (id: string, text: string) => {
+    const cue = cues.find((c) => c.id === id);
+    if (!cue) return;
+    updateCue({ ...cue, text });
+    setCues(getCues());
+  };
+
+  const removeCue = (id: string) => {
+    deleteCue(id);
+    setCues(getCues());
+  };
 
   return (
-    <>
+    <div className="card">
+      <h1>Local Cues</h1>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <input
+          value={newText}
+          onChange={(e) => setNewText(e.target.value)}
+          placeholder="New cue"
+        />
+        <button onClick={addCue}>Add</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      <ul>
+        {cues.map((cue) => (
+          <li key={cue.id}>
+            <input
+              value={(cue as { text?: string }).text ?? ''}
+              onChange={(e) => editCue(cue.id, e.target.value)}
+            />
+            <button onClick={() => removeCue(cue.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
